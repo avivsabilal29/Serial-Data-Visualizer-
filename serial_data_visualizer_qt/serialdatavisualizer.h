@@ -2,6 +2,11 @@
 #define SERIALDATAVISUALIZER_H
 
 #include <QMainWindow>
+#include <QDebug>
+#include <QMessageBox>
+#include <QString>
+#include <QSerialPort>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -19,5 +24,6 @@ public:
 
 private:
     Ui::SerialDataVisualizer *ui;
+    QSerialPort* COMPORT;
 };
 #endif // SERIALDATAVISUALIZER_H
