@@ -9,19 +9,18 @@
 #ifndef UI_SERIALDATAVISUALIZER_H
 #define UI_SERIALDATAVISUALIZER_H
 
+#include <QtCharts/QChartView>
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
-#include <QtWidgets/QTableWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -32,10 +31,10 @@ class Ui_SerialDataVisualizer
 public:
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout;
+    QHBoxLayout *titleLayout;
     QLabel *titleLabel;
-    QHBoxLayout *serialConnectionLayout;
-    QLabel *serialConnectionLabel;
     QHBoxLayout *serialOptionsLayout;
+    QLabel *serialConnectionLabel;
     QLabel *portLabel;
     QComboBox *portDropdown;
     QLabel *baudrateLabel;
@@ -45,14 +44,16 @@ public:
     QHBoxLayout *controlButtonsLayout;
     QPushButton *startButton;
     QPushButton *stopButton;
-    QPushButton *clearButton;
     QPushButton *viewRawDataButton;
-    QTableWidget *dataTable;
+    QPushButton *clearButton;
+    QChartView *dataChartView;
     QHBoxLayout *analysisLayout;
     QLabel *averageLabel;
     QLabel *minLabel;
     QLabel *maxLabel;
-    QLabel *statusLabel;
+    QHBoxLayout *statusLayout;
+    QLabel *iconLabel;
+    QLabel *statusTextLabel;
     QStatusBar *statusbar;
     QMenuBar *menubar;
     QMenu *menuSetting;
@@ -66,6 +67,8 @@ public:
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         verticalLayout = new QVBoxLayout(centralwidget);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        titleLayout = new QHBoxLayout();
+        titleLayout->setObjectName(QString::fromUtf8("titleLayout"));
         titleLabel = new QLabel(centralwidget);
         titleLabel->setObjectName(QString::fromUtf8("titleLabel"));
         QFont font;
@@ -74,23 +77,21 @@ public:
         titleLabel->setFont(font);
         titleLabel->setAlignment(Qt::AlignCenter);
 
-        verticalLayout->addWidget(titleLabel);
+        titleLayout->addWidget(titleLabel);
 
-        serialConnectionLayout = new QHBoxLayout();
-        serialConnectionLayout->setObjectName(QString::fromUtf8("serialConnectionLayout"));
+
+        verticalLayout->addLayout(titleLayout);
+
+        serialOptionsLayout = new QHBoxLayout();
+        serialOptionsLayout->setObjectName(QString::fromUtf8("serialOptionsLayout"));
         serialConnectionLabel = new QLabel(centralwidget);
         serialConnectionLabel->setObjectName(QString::fromUtf8("serialConnectionLabel"));
         QFont font1;
         font1.setBold(true);
         serialConnectionLabel->setFont(font1);
 
-        serialConnectionLayout->addWidget(serialConnectionLabel);
+        serialOptionsLayout->addWidget(serialConnectionLabel);
 
-
-        verticalLayout->addLayout(serialConnectionLayout);
-
-        serialOptionsLayout = new QHBoxLayout();
-        serialOptionsLayout->setObjectName(QString::fromUtf8("serialOptionsLayout"));
         portLabel = new QLabel(centralwidget);
         portLabel->setObjectName(QString::fromUtf8("portLabel"));
 
@@ -136,26 +137,23 @@ public:
 
         controlButtonsLayout->addWidget(stopButton);
 
-        clearButton = new QPushButton(centralwidget);
-        clearButton->setObjectName(QString::fromUtf8("clearButton"));
-
-        controlButtonsLayout->addWidget(clearButton);
-
         viewRawDataButton = new QPushButton(centralwidget);
         viewRawDataButton->setObjectName(QString::fromUtf8("viewRawDataButton"));
 
         controlButtonsLayout->addWidget(viewRawDataButton);
 
+        clearButton = new QPushButton(centralwidget);
+        clearButton->setObjectName(QString::fromUtf8("clearButton"));
+
+        controlButtonsLayout->addWidget(clearButton);
+
 
         verticalLayout->addLayout(controlButtonsLayout);
 
-        dataTable = new QTableWidget(centralwidget);
-        if (dataTable->columnCount() < 4)
-            dataTable->setColumnCount(4);
-        dataTable->setObjectName(QString::fromUtf8("dataTable"));
-        dataTable->setColumnCount(4);
+        dataChartView = new QChartView(centralwidget);
+        dataChartView->setObjectName(QString::fromUtf8("dataChartView"));
 
-        verticalLayout->addWidget(dataTable);
+        verticalLayout->addWidget(dataChartView);
 
         analysisLayout = new QHBoxLayout();
         analysisLayout->setObjectName(QString::fromUtf8("analysisLayout"));
@@ -177,14 +175,27 @@ public:
 
         verticalLayout->addLayout(analysisLayout);
 
-        statusLabel = new QLabel(centralwidget);
-        statusLabel->setObjectName(QString::fromUtf8("statusLabel"));
+        statusLayout = new QHBoxLayout();
+        statusLayout->setSpacing(5);
+        statusLayout->setObjectName(QString::fromUtf8("statusLayout"));
+        statusLayout->setAlignment(Qt::AlignLeft);
+        iconLabel = new QLabel(centralwidget);
+        iconLabel->setObjectName(QString::fromUtf8("iconLabel"));
+        iconLabel->setAlignment(Qt::AlignVCenter);
+
+        statusLayout->addWidget(iconLabel);
+
+        statusTextLabel = new QLabel(centralwidget);
+        statusTextLabel->setObjectName(QString::fromUtf8("statusTextLabel"));
         QFont font2;
         font2.setItalic(true);
-        statusLabel->setFont(font2);
-        statusLabel->setAlignment(Qt::AlignCenter);
+        statusTextLabel->setFont(font2);
+        statusTextLabel->setAlignment(Qt::AlignVCenter);
 
-        verticalLayout->addWidget(statusLabel);
+        statusLayout->addWidget(statusTextLabel);
+
+
+        verticalLayout->addLayout(statusLayout);
 
         SerialDataVisualizer->setCentralWidget(centralwidget);
         statusbar = new QStatusBar(SerialDataVisualizer);
@@ -208,24 +219,19 @@ public:
     {
         SerialDataVisualizer->setWindowTitle(QCoreApplication::translate("SerialDataVisualizer", "Serial Data Visualizer", nullptr));
         titleLabel->setText(QCoreApplication::translate("SerialDataVisualizer", "Serial Data Visualizer", nullptr));
-        serialConnectionLabel->setText(QCoreApplication::translate("SerialDataVisualizer", "Serial Connection", nullptr));
+        serialConnectionLabel->setText(QCoreApplication::translate("SerialDataVisualizer", "Serial Connection:", nullptr));
         portLabel->setText(QCoreApplication::translate("SerialDataVisualizer", "Port:", nullptr));
         baudrateLabel->setText(QCoreApplication::translate("SerialDataVisualizer", "Baudrate:", nullptr));
         connectButton->setText(QCoreApplication::translate("SerialDataVisualizer", "Connect", nullptr));
         disconnectButton->setText(QCoreApplication::translate("SerialDataVisualizer", "Disconnect", nullptr));
         startButton->setText(QCoreApplication::translate("SerialDataVisualizer", "Start", nullptr));
         stopButton->setText(QCoreApplication::translate("SerialDataVisualizer", "Stop", nullptr));
-        clearButton->setText(QCoreApplication::translate("SerialDataVisualizer", "Clear", nullptr));
         viewRawDataButton->setText(QCoreApplication::translate("SerialDataVisualizer", "View Raw Data", nullptr));
-        dataTable->setProperty("horizontalHeaderLabels", QVariant(QStringList()
-            << QCoreApplication::translate("SerialDataVisualizer", "Timestamp", nullptr)
-            << QCoreApplication::translate("SerialDataVisualizer", "Data", nullptr)
-            << QCoreApplication::translate("SerialDataVisualizer", "Status", nullptr)
-            << QCoreApplication::translate("SerialDataVisualizer", "Checksum", nullptr)));
+        clearButton->setText(QCoreApplication::translate("SerialDataVisualizer", "Clear", nullptr));
         averageLabel->setText(QCoreApplication::translate("SerialDataVisualizer", "Average:", nullptr));
         minLabel->setText(QCoreApplication::translate("SerialDataVisualizer", "Min:", nullptr));
         maxLabel->setText(QCoreApplication::translate("SerialDataVisualizer", "Max:", nullptr));
-        statusLabel->setText(QCoreApplication::translate("SerialDataVisualizer", "Status: Disconnected", nullptr));
+        statusTextLabel->setText(QCoreApplication::translate("SerialDataVisualizer", "Disconnected", nullptr));
         menuSetting->setTitle(QCoreApplication::translate("SerialDataVisualizer", "Setting", nullptr));
     } // retranslateUi
 

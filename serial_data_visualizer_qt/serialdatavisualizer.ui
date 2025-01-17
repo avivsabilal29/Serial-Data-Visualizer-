@@ -16,23 +16,27 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QLabel" name="titleLabel">
-      <property name="font">
-       <font>
-        <pointsize>16</pointsize>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Serial Data Visualizer</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
+     <layout class="QHBoxLayout" name="titleLayout">
+      <item>
+       <widget class="QLabel" name="titleLabel">
+        <property name="font">
+         <font>
+          <pointsize>16</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Serial Data Visualizer</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="serialConnectionLayout">
+     <layout class="QHBoxLayout" name="serialOptionsLayout">
       <item>
        <widget class="QLabel" name="serialConnectionLabel">
         <property name="font">
@@ -41,14 +45,10 @@
          </font>
         </property>
         <property name="text">
-         <string>Serial Connection</string>
+         <string>Serial Connection:</string>
         </property>
        </widget>
       </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="serialOptionsLayout">
       <item>
        <widget class="QLabel" name="portLabel">
         <property name="text">
@@ -102,39 +102,23 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="clearButton">
-        <property name="text">
-         <string>Clear</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="viewRawDataButton">
         <property name="text">
          <string>View Raw Data</string>
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="clearButton">
+        <property name="text">
+         <string>Clear</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
-     <widget class="QTableWidget" name="dataTable">
-      <property name="columnCount">
-       <number>4</number>
-      </property>
-      <property name="horizontalHeaderLabels" stdset="0">
-       <stringlist>
-        <string>Timestamp</string>
-        <string>Data</string>
-        <string>Status</string>
-        <string>Checksum</string>
-       </stringlist>
-      </property>
-      <column/>
-      <column/>
-      <column/>
-      <column/>
-     </widget>
+     <widget class="QChartView" name="dataChartView" native="true"/>
     </item>
     <item>
      <layout class="QHBoxLayout" name="analysisLayout">
@@ -162,19 +146,40 @@
      </layout>
     </item>
     <item>
-     <widget class="QLabel" name="statusLabel">
-      <property name="font">
-       <font>
-        <italic>true</italic>
-       </font>
-      </property>
-      <property name="text">
-       <string>Status: Disconnected</string>
+     <layout class="QHBoxLayout" name="statusLayout">
+  <property name="alignment">
+    <set>Qt::AlignLeft</set>
+  </property>
+  <property name="spacing">
+    <number>5</number> 
+  </property>
+  <item>
+    <widget class="QLabel" name="iconLabel">
+      <property name="pixmap">
+        <pixmap resource=":/component_asset/disconnected.png"/>
       </property>
       <property name="alignment">
-       <set>Qt::AlignCenter</set>
+        <set>Qt::AlignVCenter</set>
       </property>
-     </widget>
+    </widget>
+  </item>
+  <item>
+    <widget class="QLabel" name="statusTextLabel">
+      <property name="font">
+        <font>
+          <italic>true</italic>
+        </font>
+      </property>
+      <property name="text">
+        <string>Disconnected</string>
+      </property>
+      <property name="alignment">
+        <set>Qt::AlignVCenter</set>
+      </property>
+    </widget>
+  </item>
+</layout>
+
     </item>
    </layout>
   </widget>
@@ -196,6 +201,13 @@
    <addaction name="menuSetting"/>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QWidget</extends>
+   <header>qchartview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -6,6 +6,14 @@
 #include <QMessageBox>
 #include <QString>
 #include <QSerialPort>
+#include <QSerialPortInfo>
+#include <QComboBox>
+#include <QTimer>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QValueAxis>
+// #include <rawdatawindow.h>
+
 
 
 QT_BEGIN_NAMESPACE
@@ -22,8 +30,38 @@ public:
     SerialDataVisualizer(QWidget *parent = nullptr);
     ~SerialDataVisualizer();
 
+private slots:
+    void on_portDropdown_activated(int index);
+
+    void on_connectButton_clicked(bool checked);
+
+    void on_baudrateDropdown_activated(int index);
+
+    void on_disconnectButton_clicked(bool checked);
+
+    void on_viewRawDataButton_clicked();
+
+    void on_startButton_clicked();
+
+    void on_stopButton_clicked();
+
+    void on_clearButton_clicked();
+
+    void readSerialData();
+
+    bool validateLRC(const QByteArray &data);
+
+    double decodeData(const QByteArray &data);
+
 private:
     Ui::SerialDataVisualizer *ui;
-    QSerialPort* COMPORT;
+    QLineSeries *series = nullptr;
+    QSerialPort *serialPort = nullptr;
+    QChart *chart = nullptr;
+    QString selectPortCom = nullptr;
+    QString selectedBaudrate = nullptr;
+    // rawDataWindow *RawDataPopUp;
+    void refreshSerialPorts();
+    void updateConnectionStatus(bool isConnected);
 };
 #endif // SERIALDATAVISUALIZER_H
