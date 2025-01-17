@@ -10,11 +10,11 @@ bool isStreaming = false;
 SerialDataVisualizer::SerialDataVisualizer(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::SerialDataVisualizer)
-    // , RawDataPopUp(new rawDataWindow(this))
 {
     ui->setupUi(this);
     refreshSerialPorts();
     updateConnectionStatus(false);
+    rawDataPopUp = new rawDataWindow(this);
 
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &SerialDataVisualizer::refreshSerialPorts);
@@ -28,7 +28,7 @@ SerialDataVisualizer::SerialDataVisualizer(QWidget *parent)
 
     ui->baudrateDropdown->clear();
     foreach (qint32 baudrate, QSerialPortInfo::standardBaudRates()) {
-        ui->baudrateDropdown->addItem(QString::number(baudrate)); // Konversi baudrate ke string
+        ui->baudrateDropdown->addItem(QString::number(baudrate));
     }
 
     // initialize chart
@@ -84,15 +84,16 @@ void SerialDataVisualizer::on_connectButton_clicked(bool checked)
     serialPort->setStopBits(QSerialPort::OneStop);
     serialPort->setFlowControl(QSerialPort::NoFlowControl);
 
-
-    if (serialPort->open(QIODevice::ReadOnly)) {
+    if (serialPort->open(QIODevice::ReadWrite)) { // Ubah ke ReadWrite
         updateConnectionStatus(!checked);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialDataVisualizer::readSerialData);
+        qDebug() << "Serial port connected in ReadWrite mode.";
     } else {
         updateConnectionStatus(checked);
         qDebug() << "Failed to connect to port";
     }
 }
+
 
 void SerialDataVisualizer::on_disconnectButton_clicked(bool checked)
 {
@@ -102,54 +103,37 @@ void SerialDataVisualizer::on_disconnectButton_clicked(bool checked)
     }
 }
 
-
-// void SerialDataVisualizer::on_startButton_clicked()
-// {
-//     if (serialPort && serialPort->isOpen()) {
-//         serialPort->write("START\n");
-//     }
-// }
-
-
-// void SerialDataVisualizer::on_stopButton_clicked()
-// {
-//     if (serialPort && serialPort->isOpen()) {
-//         serialPort->write("STOP\n");
-//     }
-// }
-
-
-// void SerialDataVisualizer::on_clearButton_clicked()
-// {
-//     series->clear();
-// }
-
 void SerialDataVisualizer::on_startButton_clicked()
 {
-    isStreaming = true;
+    if (serialPort && serialPort->isOpen()) {
+        serialPort->write("START\n"); // Kirim perintah START ke ESP32
+        isStreaming = true;
+    }
 }
 
 void SerialDataVisualizer::on_stopButton_clicked()
 {
-    isStreaming = false;
+    if (serialPort && serialPort->isOpen()) {
+        serialPort->write("STOP\n"); // Kirim perintah STOP ke ESP32
+        isStreaming = false;
+    }
 }
 
 void SerialDataVisualizer::on_clearButton_clicked()
 {
     series->clear();
+    dataBuffer.clear();
+    timestamps.clear();
 }
 
 
 void SerialDataVisualizer::on_viewRawDataButton_clicked()
 {
-    qDebug() << "Raw Data selected:";
-    // RawDataPopUp->show(); // Show the raw data window
-    // RawDataPopUp->raise(); // Bring it to the front
-    // RawDataPopUp->activateWindow(); // Focus the window
-
-    rawDataWindow RawDataPopUp;
-    RawDataPopUp.setModal(true);
-    RawDataPopUp.exec();
+    if (rawDataPopUp) {
+        rawDataPopUp->show();
+        rawDataPopUp->raise();
+        rawDataPopUp->activateWindow();
+    }
 }
 
 
@@ -187,82 +171,125 @@ void SerialDataVisualizer::updateConnectionStatus(bool isConnected)
     ui->iconLabel->setPixmap(pixmap);
 }
 
-
-
-// void SerialDataVisualizer::readSerialData() {
-//     static QByteArray buffer;  // Buffer untuk menyimpan data sementara
-//     buffer.append(serialPort->readAll());  // Tambahkan data baru ke buffer
-
-//     while (buffer.contains(0x02) && buffer.contains(0x03)) {  // Cari STX dan ETX
-//         int startIdx = buffer.indexOf(0x02);  // Cari posisi STX
-//         int endIdx = buffer.indexOf(0x03, startIdx);  // Cari posisi ETX setelah STX
-
-//         if (endIdx - startIdx + 1 == 15) {  // Pastikan panjang frame adalah 15 byte
-//             QByteArray frame = buffer.mid(startIdx, 15);  // Ambil frame
-
-//             // Validasi LRC
-//             if (validateLRC(frame)) {
-//                 double value = decodeData(frame);
-//                 static int time = 0;
-//                 series->append(time++, value);  // Tambahkan data ke grafik
-//                 qDebug() << "Decoded Value:" << value;
-//             } else {
-//                 qDebug() << "LRC validation failed";
-//             }
-//             buffer.remove(0, endIdx + 1);  // Hapus data yang sudah diproses dari buffer
-//         } else {
-//             break;  // Tunggu hingga frame lengkap
-//         }
-//     }
-// }
-
-
 void SerialDataVisualizer::readSerialData()
 {
     if (!isStreaming) return;
+    static QByteArray buffer; // Buffer untuk menyimpan data sementara
+    buffer.append(serialPort->readAll());
 
-    while (serialPort->canReadLine()) {
-        QByteArray line = serialPort->readLine().trimmed();
-        // QString rawData = QString::fromUtf8(line);
+    while (buffer.contains(0x02) && buffer.contains(0x03)) { // Cari STX dan ETX
+        int startIdx = buffer.indexOf(0x02); // Posisi STX
+        int endIdx = buffer.indexOf(0x03, startIdx); // Posisi ETX setelah STX
 
-        // RawDataPopUp->appendRawData(rawData);
+        if (endIdx - startIdx + 1 == 15) { // Pastikan frame memiliki panjang 15 byte
+            QByteArray frame = buffer.mid(startIdx, 15); // Ambil frame lengkap
+            qDebug() << "Received frame:" << frame.toHex();
 
-        bool ok;
-        double value = line.toDouble(&ok);
-        if (ok) {
-            static int time = 0;
-            series->append(time++, value);  // Append value to the chart
-            if (time > 10) {  // Scroll the chart dynamically
-                chart->axes(Qt::Horizontal).first()->setRange(time - 10, time);
+            if (validateLRC(frame)) { // Validasi LRC
+                // Parsing data
+                double floatValue = decodeData(frame);
+                uint64_t timestamp = parseTimestamp(frame);
+
+
+                // Tambahkan data ke buffer
+                if (dataBuffer.size() >= maxBufferSize) {
+                    dataBuffer.removeFirst(); // Hapus elemen pertama jika buffer penuh
+                    timestamps.removeFirst();
+                }
+                dataBuffer.append(floatValue);
+                timestamps.append(timestamp);
+
+                // Perbarui grafik
+                updateChart();
+
+                // Log raw data (opsional)
+                QString rawData = QString("Value: %1").arg(floatValue);
+                if (rawDataPopUp) {
+                    rawDataPopUp->appendRawData(rawData); // Kirim ke jendela raw data
+                }
+            } else {
+                qDebug() << "Invalid LRC, frame ignored.";
             }
+
+            buffer.remove(0, endIdx + 1); // Hapus frame yang sudah diproses
+        } else {
+            break; // Tunggu hingga frame lengkap
         }
     }
 }
+
+void SerialDataVisualizer::updateChart()
+{
+    series->clear(); // Hapus data grafik sebelumnya
+    double minValue = std::numeric_limits<double>::max();
+    double maxValue = std::numeric_limits<double>::min();
+
+    for (int i = 0; i < dataBuffer.size(); ++i) {
+        series->append(timestamps[i], dataBuffer[i]); // Gunakan timestamp sebagai sumbu X
+        minValue = qMin(minValue, dataBuffer[i]);
+        maxValue = qMax(maxValue, dataBuffer[i]);
+    }
+
+    // Perbarui sumbu X berdasarkan timestamp
+    auto xAxis = static_cast<QValueAxis *>(chart->axes(Qt::Horizontal).first());
+    if (!timestamps.isEmpty()) {
+        xAxis->setRange(timestamps.first(), timestamps.last()); // Gunakan range timestamp
+    }
+
+    // Perbarui sumbu Y
+    auto yAxis = static_cast<QValueAxis *>(chart->axes(Qt::Vertical).first());
+    yAxis->setRange(minValue, maxValue);
+    yAxis->setLabelFormat("%.2f");
+}
+
+
+
+
 
 bool SerialDataVisualizer::validateLRC(const QByteArray &data) {
     if (data.size() != 15) return false;
 
     uint8_t calculatedLRC = 0;
-    for (int i = 1; i < 13; i++) {  // Hitung LRC dari byte 1 hingga 12
+    qDebug() << "Data for LRC Calculation:";
+    for (int i = 1; i < 13; i++) { // XOR byte dari 1 hingga 12
         calculatedLRC ^= static_cast<uint8_t>(data[i]);
     }
-    return calculatedLRC == static_cast<uint8_t>(data[13]);  // Cocokkan dengan byte ke-13
+    uint8_t frameLRC = static_cast<uint8_t>(data[13]);
+    qDebug() << "Calculated LRC:" << calculatedLRC << ", Frame LRC:" << frameLRC;
+
+    return calculatedLRC == frameLRC;
 }
 
+
+uint64_t SerialDataVisualizer::parseTimestamp(const QByteArray &data) {
+    if (data.size() != 15) return 0;
+
+    uint64_t timestamp = 0;
+    for (int i = 0; i < 8; i++) {
+        timestamp = (timestamp << 8) | static_cast<uint8_t>(data[1 + i]);
+    }
+    return timestamp;
+}
 
 double SerialDataVisualizer::decodeData(const QByteArray &data) {
     if (data.size() != 15) return 0.0;
 
-    // Ekstrak float (big-endian) dari byte ke-9 hingga ke-12
     uint8_t floatBytes[4] = {
-        static_cast<uint8_t>(data[9]),
-        static_cast<uint8_t>(data[10]),
-        static_cast<uint8_t>(data[11]),
-        static_cast<uint8_t>(data[12])
+        static_cast<uint8_t>(data[9]),    // Byte ke-9 dari frame
+        static_cast<uint8_t>(data[10]),  // Byte ke-10 dari frame
+        static_cast<uint8_t>(data[11]),  // Byte ke-11 dari frame
+        static_cast<uint8_t>(data[12])   // Byte ke-12 dari frame
     };
+
+    // Konversi dari big-endian ke float
+    uint32_t intRepresentation =
+        (static_cast<uint32_t>(floatBytes[0]) << 24) |
+        (static_cast<uint32_t>(floatBytes[1]) << 16) |
+        (static_cast<uint32_t>(floatBytes[2]) << 8) |
+        (static_cast<uint32_t>(floatBytes[3]));
+
     float value;
-    memcpy(&value, floatBytes, sizeof(float));
+    memcpy(&value, &intRepresentation, sizeof(float)); // Interpretasikan sebagai float
+    qDebug() << "Parsed Float Value:" << value;        // Debug nilai float
     return static_cast<double>(value);
 }
-
-

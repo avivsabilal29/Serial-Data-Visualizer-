@@ -14,11 +14,12 @@ class rawDataWindow : public QDialog
 public:
     explicit rawDataWindow(QWidget *parent = nullptr);
     ~rawDataWindow();
+    void appendRawData(const QString &data);
 
 
 private slots:
     void on_clearButton_clicked();
-    void appendRawData(const QString &data);
+
     void on_closeButton_clicked();
 
 private:

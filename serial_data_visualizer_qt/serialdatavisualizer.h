@@ -12,7 +12,7 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QValueAxis>
-// #include <rawdatawindow.h>
+#include <rawdatawindow.h>
 
 
 
@@ -47,12 +47,6 @@ private slots:
 
     void on_clearButton_clicked();
 
-    void readSerialData();
-
-    bool validateLRC(const QByteArray &data);
-
-    double decodeData(const QByteArray &data);
-
 private:
     Ui::SerialDataVisualizer *ui;
     QLineSeries *series = nullptr;
@@ -61,7 +55,16 @@ private:
     QString selectPortCom = nullptr;
     QString selectedBaudrate = nullptr;
     // rawDataWindow *RawDataPopUp;
+    rawDataWindow *rawDataPopUp = nullptr;
     void refreshSerialPorts();
     void updateConnectionStatus(bool isConnected);
+    void readSerialData();
+    bool validateLRC(const QByteArray &data);
+    double decodeData(const QByteArray &data);
+    uint64_t parseTimestamp(const QByteArray &data);
+    QVector<double> dataBuffer; // Buffer untuk menyimpan data
+    QVector<double> timestamps;
+    const int maxBufferSize = 100; // Ukuran maksimum buffer
+    void updateChart();
 };
 #endif // SERIALDATAVISUALIZER_H
