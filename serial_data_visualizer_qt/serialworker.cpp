@@ -24,7 +24,7 @@ void SerialWorker::startReading()
         return;
     }
     isRunning = true;
-    readTimer->start(100); // Baca data setiap 100ms
+    readTimer->start(100);
     qDebug() << "Started reading serial data.";
 }
 
@@ -47,19 +47,10 @@ void SerialWorker::readSerialData()
 void SerialWorker::handleWorkerCommand(const QString &command)
 {
     if (command == "startReading") {
-        startReading(); // Mulai membaca data
+        startReading();
     } else if (command == "stopReading") {
-        stopReading(); // Hentikan pembacaan data
-        // resetWorker();
+        stopReading();
     }
 }
 
-void SerialWorker::resetWorker()
-{
-    isRunning = false; // Pastikan loop berhenti
-    if (serialPort) {
-        serialPort->clear(); // Hapus data dari buffer serial port
-    }
-    qDebug() << "Worker reset. Serial buffer cleared.";
-}
 

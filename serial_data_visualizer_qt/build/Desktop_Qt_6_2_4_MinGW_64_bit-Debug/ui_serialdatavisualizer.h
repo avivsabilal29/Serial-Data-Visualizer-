@@ -11,16 +11,12 @@
 
 #include <QtCharts/QChartView>
 #include <QtCore/QVariant>
-#include <QtGui/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QStatusBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -54,9 +50,6 @@ public:
     QHBoxLayout *statusLayout;
     QLabel *iconLabel;
     QLabel *statusTextLabel;
-    QStatusBar *statusbar;
-    QMenuBar *menubar;
-    QMenu *menuSetting;
 
     void setupUi(QMainWindow *SerialDataVisualizer)
     {
@@ -198,17 +191,6 @@ public:
         verticalLayout->addLayout(statusLayout);
 
         SerialDataVisualizer->setCentralWidget(centralwidget);
-        statusbar = new QStatusBar(SerialDataVisualizer);
-        statusbar->setObjectName(QString::fromUtf8("statusbar"));
-        SerialDataVisualizer->setStatusBar(statusbar);
-        menubar = new QMenuBar(SerialDataVisualizer);
-        menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 800, 21));
-        menuSetting = new QMenu(menubar);
-        menuSetting->setObjectName(QString::fromUtf8("menuSetting"));
-        SerialDataVisualizer->setMenuBar(menubar);
-
-        menubar->addAction(menuSetting->menuAction());
 
         retranslateUi(SerialDataVisualizer);
 
@@ -232,7 +214,6 @@ public:
         minLabel->setText(QCoreApplication::translate("SerialDataVisualizer", "Min:", nullptr));
         maxLabel->setText(QCoreApplication::translate("SerialDataVisualizer", "Max:", nullptr));
         statusTextLabel->setText(QCoreApplication::translate("SerialDataVisualizer", "Disconnected", nullptr));
-        menuSetting->setTitle(QCoreApplication::translate("SerialDataVisualizer", "Setting", nullptr));
     } // retranslateUi
 
 };

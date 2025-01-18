@@ -22,7 +22,6 @@ public slots:
     void startReading();
     void stopReading();
     void handleWorkerCommand(const QString &command);
-    void resetWorker();
 
 
 
