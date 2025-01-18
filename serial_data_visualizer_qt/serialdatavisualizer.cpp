@@ -6,31 +6,37 @@
 bool isStreaming = false;
 
 
-
 SerialDataVisualizer::SerialDataVisualizer(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::SerialDataVisualizer)
 {
     ui->setupUi(this);
-    // Inisialisasi thread dan worker
+    dataProcessor = new SerialDataProcessor();
     workerThread = new QThread(this);
     serialWorker = new SerialWorker();
     serialWorker->moveToThread(workerThread);
 
-    // Hubungkan signal-slot
     connect(workerThread, &QThread::started, serialWorker, &SerialWorker::startReading);
     connect(serialWorker, &SerialWorker::dataReceived, this, &SerialDataVisualizer::handleSerialData);
     connect(this, &SerialDataVisualizer::sendDataToWorker, serialWorker, &SerialWorker::handleWorkerCommand);
-
-
-
-
     workerThread->start();
 
-    initializeTimers();
+    // initializeTimers();
+    // chartManager = new ChartManager(ui->dataChartView, this);
+    rawDataPopUp = new rawDataWindow(this);
+    chartManager = new ChartManager(ui->dataChartView, rawDataPopUp, this);
+    chartManager->setBufferSize(maxBufferSize);
+
+    connect(chartManager, &ChartManager::chartUpdated, this, [this](double minValue, double maxValue, double averageValue) {
+        ui->averageLabel->setText(QString("Average: %1").arg(averageValue, 0, 'f', 2));
+        ui->maxLabel->setText(QString("Max: %1").arg(maxValue, 0, 'f', 2));
+        ui->minLabel->setText(QString("Min: %1").arg(minValue, 0, 'f', 2));
+    });
+
+    chartManager->startTimers();
+
     refreshSerialPorts();
     updateConnectionStatus(false);
-    rawDataPopUp = new rawDataWindow(this);
 
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &SerialDataVisualizer::refreshSerialPorts);
@@ -47,21 +53,18 @@ SerialDataVisualizer::SerialDataVisualizer(QWidget *parent)
         ui->baudrateDropdown->addItem(QString::number(baudrate));
     }
 
-    // initialize chart
-    series = new QLineSeries();
-    chart = new QChart();
-    chart->legend()->hide();
-    chart->addSeries(series);
-    chart->createDefaultAxes();
+    // series = new QLineSeries();
+    // chart = new QChart();
+    // chart->legend()->hide();
+    // chart->addSeries(series);
+    // chart->createDefaultAxes();
 
 
-    chart->axes(Qt::Vertical).first()->setRange(0, 100);
-    chart->axes(Qt::Horizontal).first()->setRange(0, 10);
-    chart->setVisible(true);
+    // chart->axes(Qt::Vertical).first()->setRange(0, 100);
+    // chart->axes(Qt::Horizontal).first()->setRange(0, 10);
+    // chart->setVisible(true);
 
-    ui->dataChartView->setChart(chart);
-
-
+    // ui->dataChartView->setChart(chart);
 }
 
 SerialDataVisualizer::~SerialDataVisualizer()
@@ -152,9 +155,13 @@ void SerialDataVisualizer::on_stopButton_clicked()
 
 void SerialDataVisualizer::on_clearButton_clicked()
 {
-    series->clear();
-    dataBuffer.clear();
-    timestamps.clear();
+    // series->clear();
+    // dataBuffer.clear();
+    // timestamps.clear();
+
+    if (chartManager) {
+        chartManager->clearData();
+    }
 }
 
 
@@ -221,7 +228,8 @@ void SerialDataVisualizer::handleSerialData(const QByteArray &data)
 
         if (endIdx - startIdx + 1 != 15) {
             qDebug() << "Invalid frame length. Removing invalid data.";
-            rawDataBuffer.enqueue(qMakePair(QString(buffer.mid(0, startIdx + 1).toHex()), false));
+            // rawDataBuffer.enqueue(qMakePair(QString(buffer.mid(0, startIdx + 1).toHex()), false));
+            chartManager->enqueueRawData(QString(buffer.mid(0, startIdx + 1).toHex()), false);
             buffer.remove(0, startIdx + 1);
             continue;
         }
@@ -229,29 +237,34 @@ void SerialDataVisualizer::handleSerialData(const QByteArray &data)
         QByteArray frame = buffer.mid(startIdx, 15);
         qDebug() << "Received frame:" << frame.toHex();
 
-        if (!validateLRC(frame)) {
+        if (!dataProcessor->validateLRC(frame)) {
             QString warningMessage = "Warning: Invalid LRC detected. Frame ignored.";
             qDebug() << warningMessage;
-            rawDataBuffer.enqueue(qMakePair(QString(frame.toHex()), false));
-
+            // rawDataBuffer.enqueue(qMakePair(QString(frame.toHex()), false));
+            chartManager->enqueueRawData(QString(frame.toHex()), false);
             buffer.remove(0, endIdx + 1);
             continue;
         }
 
-        double floatValue = decodeData(frame);
-        uint64_t timestamp = parseTimestamp(frame);
+        double floatValue = dataProcessor->decodeData(frame);
+        uint64_t timestamp = dataProcessor->parseTimestamp(frame);
 
-        if (dataBuffer.size() >= maxBufferSize) {
-            dataBuffer.removeFirst();
-            timestamps.removeFirst();
-        }
-        dataBuffer.append(floatValue);
-        timestamps.append(timestamp);
+        // if (dataBuffer.size() >= maxBufferSize) {
+        //     dataBuffer.removeFirst();
+        //     timestamps.removeFirst();
+        // }
+        // dataBuffer.append(floatValue);
+        // timestamps.append(timestamp);
 
-        rawDataBuffer.enqueue(qMakePair(QString("Timestamp: %1, Value: %2")
-                                            .arg(timestamp)
-                                            .arg(floatValue, 0, 'f', 2),
-                                        true));
+        // rawDataBuffer.enqueue(qMakePair(QString("Timestamp: %1, Value: %2")
+        //                                     .arg(timestamp)
+        //                                     .arg(floatValue, 0, 'f', 2),
+        //                                 true));
+        chartManager->appendData(floatValue, timestamp);
+        chartManager->enqueueRawData(QString("Timestamp: %1, Value: %2")
+                                         .arg(timestamp)
+                                         .arg(floatValue, 0, 'f', 2),
+                                     true);
 
         buffer.remove(0, endIdx + 1);
     }
@@ -264,116 +277,67 @@ void SerialDataVisualizer::handleSerialData(const QByteArray &data)
 }
 
 
-void SerialDataVisualizer::initializeTimers()
-{
-    QTimer *chartUpdateTimer = new QTimer(this);
-    connect(chartUpdateTimer, &QTimer::timeout, this, &SerialDataVisualizer::updateChart);
-    chartUpdateTimer->start(100);
+// void SerialDataVisualizer::initializeTimers()
+// {
+//     QTimer *chartUpdateTimer = new QTimer(this);
+//     connect(chartUpdateTimer, &QTimer::timeout, this, &SerialDataVisualizer::updateChart);
+//     chartUpdateTimer->start(100);
 
-    QTimer *rawDataUpdateTimer = new QTimer(this);
-    connect(rawDataUpdateTimer, &QTimer::timeout, this, &SerialDataVisualizer::updateRawData);
-    rawDataUpdateTimer->start(100);
-}
+//     QTimer *rawDataUpdateTimer = new QTimer(this);
+//     connect(rawDataUpdateTimer, &QTimer::timeout, this, &SerialDataVisualizer::updateRawData);
+//     rawDataUpdateTimer->start(100);
+// }
 
-void SerialDataVisualizer::updateChart()
-{
-    if (dataBuffer.isEmpty()) return;
-    series->clear();
-    double minValue = std::numeric_limits<double>::max();
-    double maxValue = std::numeric_limits<double>::min();
-    double sumValues = 0.0;
+// void SerialDataVisualizer::updateChart()
+// {
+//     if (dataBuffer.isEmpty()) return;
+//     series->clear();
+//     double minValue = std::numeric_limits<double>::max();
+//     double maxValue = std::numeric_limits<double>::min();
+//     double sumValues = 0.0;
 
-    for (int i = 0; i < dataBuffer.size(); ++i) {
-        series->append(timestamps[i], dataBuffer[i]);
-        minValue = qMin(minValue, dataBuffer[i]);
-        maxValue = qMax(maxValue, dataBuffer[i]);
-        sumValues += dataBuffer[i];
-    }
+//     for (int i = 0; i < dataBuffer.size(); ++i) {
+//         series->append(timestamps[i], dataBuffer[i]);
+//         minValue = qMin(minValue, dataBuffer[i]);
+//         maxValue = qMax(maxValue, dataBuffer[i]);
+//         sumValues += dataBuffer[i];
+//     }
 
-    if (timestamps.size() > maxBufferSize) {
-        qDebug() << "Buffer size exceeded. Resetting chart.";
-        dataBuffer.clear();
-        timestamps.clear();
-    }
+//     if (timestamps.size() > maxBufferSize) {
+//         qDebug() << "Buffer size exceeded. Resetting chart.";
+//         dataBuffer.clear();
+//         timestamps.clear();
+//     }
 
-    double averageValue = dataBuffer.isEmpty() ? 0.0 : sumValues / dataBuffer.size();
+//     double averageValue = dataBuffer.isEmpty() ? 0.0 : sumValues / dataBuffer.size();
 
-    auto xAxis = static_cast<QValueAxis *>(chart->axes(Qt::Horizontal).first());
-    if (!timestamps.isEmpty()) {
-        xAxis->setRange(timestamps.first(), timestamps.last());
-    }
+//     auto xAxis = static_cast<QValueAxis *>(chart->axes(Qt::Horizontal).first());
+//     if (!timestamps.isEmpty()) {
+//         xAxis->setRange(timestamps.first(), timestamps.last());
+//     }
 
-    auto yAxis = static_cast<QValueAxis *>(chart->axes(Qt::Vertical).first());
-    yAxis->setRange(minValue, maxValue);
-    yAxis->setLabelFormat("%.2f");
+//     auto yAxis = static_cast<QValueAxis *>(chart->axes(Qt::Vertical).first());
+//     yAxis->setRange(minValue, maxValue);
+//     yAxis->setLabelFormat("%.2f");
 
-    ui->averageLabel->setText(QString("Average: %1").arg(averageValue, 0, 'f', 2));
-    ui->maxLabel->setText(QString("Max: %1").arg(maxValue, 0, 'f', 2));
-    ui->minLabel->setText(QString("Min: %1").arg(minValue, 0, 'f', 2));
+//     ui->averageLabel->setText(QString("Average: %1").arg(averageValue, 0, 'f', 2));
+//     ui->maxLabel->setText(QString("Max: %1").arg(maxValue, 0, 'f', 2));
+//     ui->minLabel->setText(QString("Min: %1").arg(minValue, 0, 'f', 2));
 
-    chart->setAnimationOptions(QChart::SeriesAnimations);
-}
-
-
-void SerialDataVisualizer::updateRawData()
-{
-    if (!rawDataPopUp || rawDataBuffer.isEmpty()) return;
-
-    while (!rawDataBuffer.isEmpty()) {
-        auto rawData = rawDataBuffer.dequeue();
-        if (rawData.second) {
-            rawDataPopUp->appendRawData(rawData.first);
-        } else {
-            rawDataPopUp->appendRawData("Error: " + rawData.first);
-        }
-    }
-}
+//     chart->setAnimationOptions(QChart::SeriesAnimations);
+// }
 
 
+// void SerialDataVisualizer::updateRawData()
+// {
+//     if (!rawDataPopUp || rawDataBuffer.isEmpty()) return;
 
-bool SerialDataVisualizer::validateLRC(const QByteArray &data) {
-    if (data.size() != 15) return false;
-
-    uint8_t calculatedLRC = 0;
-    qDebug() << "Data for LRC Calculation:";
-    for (int i = 1; i < 13; i++) {
-        calculatedLRC ^= static_cast<uint8_t>(data[i]);
-    }
-    uint8_t frameLRC = static_cast<uint8_t>(data[13]);
-    qDebug() << "Calculated LRC:" << calculatedLRC << ", Frame LRC:" << frameLRC;
-
-    return calculatedLRC == frameLRC;
-}
-
-
-uint64_t SerialDataVisualizer::parseTimestamp(const QByteArray &data) {
-    if (data.size() != 15) return 0;
-
-    uint64_t timestamp = 0;
-    for (int i = 0; i < 8; i++) {
-        timestamp = (timestamp << 8) | static_cast<uint8_t>(data[1 + i]);
-    }
-    return timestamp;
-}
-
-double SerialDataVisualizer::decodeData(const QByteArray &data) {
-    if (data.size() != 15) return 0.0;
-
-    uint8_t floatBytes[4] = {
-        static_cast<uint8_t>(data[9]),
-        static_cast<uint8_t>(data[10]),
-        static_cast<uint8_t>(data[11]),
-        static_cast<uint8_t>(data[12])
-    };
-
-    uint32_t intRepresentation =
-        (static_cast<uint32_t>(floatBytes[0]) << 24) |
-        (static_cast<uint32_t>(floatBytes[1]) << 16) |
-        (static_cast<uint32_t>(floatBytes[2]) << 8) |
-        (static_cast<uint32_t>(floatBytes[3]));
-
-    float value;
-    memcpy(&value, &intRepresentation, sizeof(float));
-    qDebug() << "Parsed Float Value:" << value;
-    return static_cast<double>(value);
-}
+//     while (!rawDataBuffer.isEmpty()) {
+//         auto rawData = rawDataBuffer.dequeue();
+//         if (rawData.second) {
+//             rawDataPopUp->appendRawData(rawData.first);
+//         } else {
+//             rawDataPopUp->appendRawData("Error: " + rawData.first);
+//         }
+//     }
+// }

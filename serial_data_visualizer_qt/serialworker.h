@@ -4,33 +4,31 @@
 #include <QObject>
 #include <QSerialPort>
 #include <QTimer>
+#include "ISerialHandler.h"
 
-class SerialWorker : public QObject
-{
+class SerialWorker : public QObject, public ISerialHandler {
     Q_OBJECT
 
 public:
     explicit SerialWorker(QObject *parent = nullptr);
-    ~SerialWorker();
+    ~SerialWorker() override;
+
+    void startReading() override;
+    void stopReading() override;
+    void handleWorkerCommand(const QString &command) override;
 
     void setSerialPort(QSerialPort *port);
 
+
 signals:
     void dataReceived(const QByteArray &data);
-
-public slots:
-    void startReading();
-    void stopReading();
-    void handleWorkerCommand(const QString &command);
-
-
 
 private slots:
     void readSerialData();
 
 private:
     QSerialPort *serialPort;
-    QTimer *readTimer; // Timer untuk pembacaan serial
+    QTimer *readTimer;
     bool isRunning;
 };
 

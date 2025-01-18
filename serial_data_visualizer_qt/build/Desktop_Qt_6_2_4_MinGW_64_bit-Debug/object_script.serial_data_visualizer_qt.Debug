@@ -1,0 +1,11 @@
+debug/chartmanager.o
+debug/main.o
+debug/rawdatawindow.o
+debug/serialdataprocessor.o
+debug/serialdatavisualizer.o
+debug/serialworker.o
+debug/qrc_resources.o
+debug/moc_chartmanager.o
+debug/moc_rawdatawindow.o
+debug/moc_serialdatavisualizer.o
+debug/moc_serialworker.o

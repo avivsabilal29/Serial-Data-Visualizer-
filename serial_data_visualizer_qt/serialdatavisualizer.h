@@ -9,13 +9,15 @@
 #include <QSerialPortInfo>
 #include <QComboBox>
 #include <QTimer>
-#include <QtCharts/QChartView>
+// #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
-#include <QtCharts/QValueAxis>
+// #include <QtCharts/QValueAxis>
 #include <rawdatawindow.h>
 #include <serialworker.h>
 #include <QThread>
 #include <QQueue>
+#include <serialdataprocessor.h>
+#include <chartmanager.h>
 
 
 
@@ -54,27 +56,32 @@ private:
     Ui::SerialDataVisualizer *ui;
     QLineSeries *series = nullptr;
     QSerialPort *serialPort = nullptr;
-    QChart *chart = nullptr;
+    // QChart *chart = nullptr;
     QString selectPortCom = nullptr;
     QString selectedBaudrate = nullptr;
     // rawDataWindow *RawDataPopUp;
     rawDataWindow *rawDataPopUp = nullptr;
     void refreshSerialPorts();
     void updateConnectionStatus(bool isConnected);
-    void readSerialData();
-    bool validateLRC(const QByteArray &data);
-    double decodeData(const QByteArray &data);
-    uint64_t parseTimestamp(const QByteArray &data);
-    QVector<double> dataBuffer; // Buffer untuk menyimpan data
-    QVector<double> timestamps;
-    const int maxBufferSize = 100; // Ukuran maksimum buffer
-    void updateChart();
-    void initializeTimers();
+    // void readSerialData();
+    // bool validateLRC(const QByteArray &data);
+    // double decodeData(const QByteArray &data);
+    // uint64_t parseTimestamp(const QByteArray &data);
+    /*QVector<double> dataBuffer;
+    QVector<double> timestamps*/;
+    const int maxBufferSize = 100;
+    // void updateChart();
+    // void initializeTimers();
     QThread *workerThread;
     SerialWorker *serialWorker;
     void handleSerialData(const QByteArray &data);
     QQueue<QPair<QString, bool>> rawDataBuffer;
-    void updateRawData();
+    // void updateRawData();
+
+
+    SerialDataProcessor *dataProcessor;
+    ChartManager *chartManager;
+
 
 signals:
     void sendDataToWorker(const QByteArray &data);

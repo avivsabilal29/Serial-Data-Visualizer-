@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_SerialWorker_t {
-    const uint offsetsAndSize[18];
-    char stringdata0[100];
+    const uint offsetsAndSize[10];
+    char stringdata0[47];
 };
 #define QT_MOC_LITERAL(ofs, len) \
     uint(offsetof(qt_meta_stringdata_SerialWorker_t, stringdata0) + ofs), len 
@@ -33,16 +33,11 @@ QT_MOC_LITERAL(0, 12), // "SerialWorker"
 QT_MOC_LITERAL(13, 12), // "dataReceived"
 QT_MOC_LITERAL(26, 0), // ""
 QT_MOC_LITERAL(27, 4), // "data"
-QT_MOC_LITERAL(32, 12), // "startReading"
-QT_MOC_LITERAL(45, 11), // "stopReading"
-QT_MOC_LITERAL(57, 19), // "handleWorkerCommand"
-QT_MOC_LITERAL(77, 7), // "command"
-QT_MOC_LITERAL(85, 14) // "readSerialData"
+QT_MOC_LITERAL(32, 14) // "readSerialData"
 
     },
     "SerialWorker\0dataReceived\0\0data\0"
-    "startReading\0stopReading\0handleWorkerCommand\0"
-    "command\0readSerialData"
+    "readSerialData"
 };
 #undef QT_MOC_LITERAL
 
@@ -52,7 +47,7 @@ static const uint qt_meta_data_SerialWorker[] = {
       10,       // revision
        0,       // classname
        0,    0, // classinfo
-       5,   14, // methods
+       2,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -60,21 +55,15 @@ static const uint qt_meta_data_SerialWorker[] = {
        1,       // signalCount
 
  // signals: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    1,   44,    2, 0x06,    1 /* Public */,
+       1,    1,   26,    2, 0x06,    1 /* Public */,
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       4,    0,   47,    2, 0x0a,    3 /* Public */,
-       5,    0,   48,    2, 0x0a,    4 /* Public */,
-       6,    1,   49,    2, 0x0a,    5 /* Public */,
-       8,    0,   52,    2, 0x08,    7 /* Private */,
+       4,    0,   29,    2, 0x08,    3 /* Private */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::QByteArray,    3,
 
  // slots: parameters
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void, QMetaType::QString,    7,
     QMetaType::Void,
 
        0        // eod
@@ -87,10 +76,7 @@ void SerialWorker::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
         (void)_t;
         switch (_id) {
         case 0: _t->dataReceived((*reinterpret_cast< std::add_pointer_t<QByteArray>>(_a[1]))); break;
-        case 1: _t->startReading(); break;
-        case 2: _t->stopReading(); break;
-        case 3: _t->handleWorkerCommand((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 4: _t->readSerialData(); break;
+        case 1: _t->readSerialData(); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -113,7 +99,7 @@ const QMetaObject SerialWorker::staticMetaObject = { {
     nullptr,
 qt_incomplete_metaTypeArray<qt_meta_stringdata_SerialWorker_t
 , QtPrivate::TypeAndForceComplete<SerialWorker, std::true_type>, QtPrivate::TypeAndForceComplete<void, std::false_type>, QtPrivate::TypeAndForceComplete<const QByteArray &, std::false_type>
-, QtPrivate::TypeAndForceComplete<void, std::false_type>, QtPrivate::TypeAndForceComplete<void, std::false_type>, QtPrivate::TypeAndForceComplete<void, std::false_type>, QtPrivate::TypeAndForceComplete<const QString &, std::false_type>, QtPrivate::TypeAndForceComplete<void, std::false_type>
+, QtPrivate::TypeAndForceComplete<void, std::false_type>
 
 
 >,
@@ -131,6 +117,8 @@ void *SerialWorker::qt_metacast(const char *_clname)
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_SerialWorker.stringdata0))
         return static_cast<void*>(this);
+    if (!strcmp(_clname, "ISerialHandler"))
+        return static_cast< ISerialHandler*>(this);
     return QObject::qt_metacast(_clname);
 }
 
@@ -140,13 +128,13 @@ int SerialWorker::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 2;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 5)
+        if (_id < 2)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 5;
+        _id -= 2;
     }
     return _id;
 }

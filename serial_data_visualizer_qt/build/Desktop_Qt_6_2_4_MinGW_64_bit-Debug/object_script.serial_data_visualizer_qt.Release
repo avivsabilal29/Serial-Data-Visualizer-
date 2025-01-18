@@ -1,0 +1,11 @@
+release/chartmanager.o
+release/main.o
+release/rawdatawindow.o
+release/serialdataprocessor.o
+release/serialdatavisualizer.o
+release/serialworker.o
+release/qrc_resources.o
+release/moc_chartmanager.o
+release/moc_rawdatawindow.o
+release/moc_serialdatavisualizer.o
+release/moc_serialworker.o
