@@ -13,6 +13,8 @@
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QValueAxis>
 #include <rawdatawindow.h>
+#include <serialworker.h>
+#include <QThread>
 
 
 
@@ -66,5 +68,13 @@ private:
     QVector<double> timestamps;
     const int maxBufferSize = 100; // Ukuran maksimum buffer
     void updateChart();
+    void initializeTimers();
+    QThread *workerThread;
+    SerialWorker *serialWorker;
+    void handleSerialData(const QByteArray &data);
+
+signals:
+    void sendDataToWorker(const QByteArray &data);
+
 };
 #endif // SERIALDATAVISUALIZER_H

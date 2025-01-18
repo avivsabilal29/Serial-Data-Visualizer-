@@ -11,11 +11,13 @@ CONFIG += c++17
 SOURCES += \
     main.cpp \
     rawdatawindow.cpp \
-    serialdatavisualizer.cpp
+    serialdatavisualizer.cpp \
+    serialworker.cpp
 
 HEADERS += \
     rawdatawindow.h \
-    serialdatavisualizer.h
+    serialdatavisualizer.h \
+    serialworker.h
 
 FORMS += \
     rawdatawindow.ui \
