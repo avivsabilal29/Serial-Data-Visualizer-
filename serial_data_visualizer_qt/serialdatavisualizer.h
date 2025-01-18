@@ -15,6 +15,7 @@
 #include <rawdatawindow.h>
 #include <serialworker.h>
 #include <QThread>
+#include <QQueue>
 
 
 
@@ -72,6 +73,8 @@ private:
     QThread *workerThread;
     SerialWorker *serialWorker;
     void handleSerialData(const QByteArray &data);
+    QQueue<QPair<QString, bool>> rawDataBuffer;
+    void updateRawData();
 
 signals:
     void sendDataToWorker(const QByteArray &data);

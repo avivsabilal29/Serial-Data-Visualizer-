@@ -379,6 +379,7 @@ void SerialDataVisualizer::handleSerialData(const QByteArray &data)
         // Validasi panjang frame
         if (endIdx - startIdx + 1 != 15) {
             qDebug() << "Invalid frame length. Removing invalid data.";
+            rawDataBuffer.enqueue(qMakePair(QString(buffer.mid(0, startIdx + 1).toHex()), false));
             buffer.remove(0, startIdx + 1); // Hapus data hingga setelah STX
             continue;
         }
@@ -391,10 +392,11 @@ void SerialDataVisualizer::handleSerialData(const QByteArray &data)
         if (!validateLRC(frame)) {
             QString warningMessage = "Warning: Invalid LRC detected. Frame ignored.";
             qDebug() << warningMessage;
+            rawDataBuffer.enqueue(qMakePair(QString(frame.toHex()), false));
 
-            if (rawDataPopUp) {
-                rawDataPopUp->appendRawData(warningMessage); // Tampilkan pesan di View Raw Data
-            }
+            // if (rawDataPopUp) {
+            //     rawDataPopUp->appendRawData(warningMessage); // Tampilkan pesan di View Raw Data
+            // }
 
             // Hapus frame yang tidak valid dari buffer
             buffer.remove(0, endIdx + 1);
@@ -414,10 +416,15 @@ void SerialDataVisualizer::handleSerialData(const QByteArray &data)
         timestamps.append(timestamp);
 
         // Log raw data (opsional)
-        QString rawData = QString("Value: %1").arg(floatValue);
-        if (rawDataPopUp) {
-            rawDataPopUp->appendRawData(rawData); // Kirim ke jendela raw data
-        }
+        // QString rawData = QString("Value: %1").arg(floatValue);
+        // if (rawDataPopUp) {
+        //     rawDataPopUp->appendRawData(rawData); // Kirim ke jendela raw data
+        // }
+
+        rawDataBuffer.enqueue(qMakePair(QString("Timestamp: %1, Value: %2")
+                                            .arg(timestamp)
+                                            .arg(floatValue, 0, 'f', 2),
+                                        true));
 
         // Hapus frame yang sudah diproses dari buffer
         buffer.remove(0, endIdx + 1);
@@ -438,6 +445,11 @@ void SerialDataVisualizer::initializeTimers()
     QTimer *chartUpdateTimer = new QTimer(this);
     connect(chartUpdateTimer, &QTimer::timeout, this, &SerialDataVisualizer::updateChart);
     chartUpdateTimer->start(100);
+
+    // Timer untuk pembaruan raw data
+    QTimer *rawDataUpdateTimer = new QTimer(this);
+    connect(rawDataUpdateTimer, &QTimer::timeout, this, &SerialDataVisualizer::updateRawData);
+    rawDataUpdateTimer->start(100);
 }
 
 void SerialDataVisualizer::updateChart()
@@ -482,6 +494,22 @@ void SerialDataVisualizer::updateChart()
 
     chart->setAnimationOptions(QChart::SeriesAnimations);
 }
+
+
+void SerialDataVisualizer::updateRawData()
+{
+    if (!rawDataPopUp || rawDataBuffer.isEmpty()) return;
+
+    while (!rawDataBuffer.isEmpty()) {
+        auto rawData = rawDataBuffer.dequeue(); // Ambil data dari buffer
+        if (rawData.second) {
+            rawDataPopUp->appendRawData(rawData.first); // Tampilkan data valid
+        } else {
+            rawDataPopUp->appendRawData("Error: " + rawData.first); // Tampilkan data invalid
+        }
+    }
+}
+
 
 
 
