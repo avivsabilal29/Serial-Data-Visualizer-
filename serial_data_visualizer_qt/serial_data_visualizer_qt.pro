@@ -9,29 +9,28 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    chartmanager.cpp \
-    main.cpp \
-    rawdatawindow.cpp \
-    serialdataprocessor.cpp \
-    serialdatavisualizer.cpp \
-    serialworker.cpp
+    sources/main.cpp \
+    sources/rawdatawindow.cpp \
+    sources/serialdatavisualizer.cpp \
+    sources/serialworker.cpp \
+    sources/chartmanager.cpp \
+    sources/serialdataprocessor.cpp
 
 HEADERS += \
-    ISerialHandler.h \
-    chartmanager.h \
-    rawdatawindow.h \
-    serialdataprocessor.h \
-    serialdatavisualizer.h \
-    serialworker.h
+    headers/rawdatawindow.h \
+    headers/serialdatavisualizer.h \
+    headers/serialworker.h \
+    headers/chartmanager.h \
+    headers/serialdataprocessor.h \
+    headers/ISerialHandler.h
 
 FORMS += \
-    rawdatawindow.ui \
-    serialdatavisualizer.ui
+    ui/rawdatawindow.ui \
+    ui/serialdatavisualizer.ui
 
-# Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    resources.qrc
+    resources/resources.qrc

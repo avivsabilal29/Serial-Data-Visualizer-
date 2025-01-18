@@ -251,7 +251,7 @@ Makefile: ../../serial_data_visualizer_qt.pro C:/Qt/6.2.4/mingw_64/mkspecs/win32
 		C:/Qt/6.2.4/mingw_64/lib/Qt6Core.prl \
 		C:/Qt/6.2.4/mingw_64/lib/Qt6EntryPoint.prl \
 		C:/Qt/6.2.4/mingw_64/mkspecs/features/build_pass.prf \
-		../../resources.qrc
+		../../resources/resources.qrc
 	$(QMAKE) -o Makefile ..\..\serial_data_visualizer_qt.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
 C:/Qt/6.2.4/mingw_64/mkspecs/features/spec_pre.prf:
 C:/Qt/6.2.4/mingw_64/mkspecs/features/device_config.prf:
@@ -434,7 +434,7 @@ C:/Qt/6.2.4/mingw_64/lib/Qt6SerialPort.prl:
 C:/Qt/6.2.4/mingw_64/lib/Qt6Core.prl:
 C:/Qt/6.2.4/mingw_64/lib/Qt6EntryPoint.prl:
 C:/Qt/6.2.4/mingw_64/mkspecs/features/build_pass.prf:
-../../resources.qrc:
+../../resources/resources.qrc:
 qmake: FORCE
 	@$(QMAKE) -o Makefile ..\..\serial_data_visualizer_qt.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
 

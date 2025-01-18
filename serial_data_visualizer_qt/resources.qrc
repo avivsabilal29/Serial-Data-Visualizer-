@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>component_asset/connected.png</file>
-        <file>component_asset/disconnected.png</file>
-    </qresource>
-</RCC>
