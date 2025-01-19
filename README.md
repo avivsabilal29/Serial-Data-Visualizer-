@@ -3,14 +3,19 @@
 Serial Data Visualizer is a Qt Creator-based desktop application designed to read, visualize, and process serial data sent via an ESP32 device. The application supports data visualization through charts, raw data display, and features like data validation and serial connection management.
 
 ## Repository Structure
-This repository contains three main folders:
+This repository contains four main folders:
 
-### 1. `installer`
+### 1. `documentation`
+This folder contains filers for documentaion user guidelines the application and design reflection for the system, including:
+- **`README.md`**: Complete user guidelines for feature of the application
+- **`design_reflection`**: A brief report on design decisions, challenges faced, and main learnings from the project. 
+
+### 2. `installer`
 This folder contains files for creating the application installer, including:
 - **`installer.nsi`**: NSIS configuration script for building the installer.
 - **`SerialDataVisualizerSetup.exe`**: The generated executable installer.
 
-### 2. `serial_data_visualizer_qt`
+### 3. `serial_data_visualizer_qt`
 This folder contains all source code for the desktop application, including:
 - **`headers`**: Header files defining class interfaces.
 - **`sources`**: Implementations of the header files.
@@ -18,7 +23,7 @@ This folder contains all source code for the desktop application, including:
 - **`resources`**: Resource files such as icons or graphics.
 - **`serial_data_visualizer_qt.pro`**: Qt Creator project file for configuring the build.
 
-### 3. `serial_port_device`
+### 4. `serial_port_device`
 This folder contains code and simulations related to the ESP32 device, including:
 - **`esp32_serial_data_simulation`**: Code for simulating serial data on the ESP32.
 - **`serial_data_code_test`**: Code for testing serial communication.
