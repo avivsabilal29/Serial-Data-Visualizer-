@@ -51,7 +51,7 @@ Follow these steps to implement and run the application:
 ## Important Notes
 - Ensure that Qt Creator and NSIS are installed on your system.
 - For serial data simulation, make sure the ESP32 is flashed with code from the `esp32_serial_data_simulation` folder.
-- If you don't want to *install QT Creator* but want to try the *application directly*, please visit the installer folder to install the application directly without installing QT Creator.
+- If you don't want to **install QT Creator** but want to try the **application directly**, please visit the installer folder to install the application directly without installing QT Creator.
 
 For further details on each step, refer to the README in the respective folder.
 

@@ -40,6 +40,9 @@ cd serial_data_visualizer_qt
 ### 5. Using the Application
 Refer to the **documentation** folder in the main repository for detailed guidance on application features and usage instructions.
 
+### 6. Installer for the Application
+If you find installing Qt Creator and its dependencies too complicated or resource-intensive, you can simply use the pre-built application. Navigate to the installer folder in the main repository and follow the instructions in the **installer** folder to use the application directly.
+
 ---
 
 ### Notes
