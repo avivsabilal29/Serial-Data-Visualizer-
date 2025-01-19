@@ -48,6 +48,8 @@ Follow these steps to implement and run the application:
 7. Click **Stop** to stop the data streaming process.
 8. Use **Clear** to clear the data display.
 
+For further details on each step, refer to the README in `documentation` folder.
+
 ## Important Notes
 - Ensure that Qt Creator and NSIS are installed on your system.
 - For serial data simulation, make sure the ESP32 is flashed with code from the `esp32_serial_data_simulation` folder.
