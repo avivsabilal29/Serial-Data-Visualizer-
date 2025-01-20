@@ -1,0 +1,4 @@
+cp /usr/share/serial_data_visualizer/serial_permissions.rules /etc/udev/rules.d/99-serial_permissions.rules
+
+udevadm control --reload-rules
+udevadm trigger

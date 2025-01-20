@@ -1,0 +1,10 @@
+Package: serial-data-visualizer
+Version: 1.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Depends: libc6 (>= 2.31), libqt6core6, libqt6widgets6, libqt6charts6, libqt6serialport6
+Maintainer: Aviv Sabilal sabiluladiib29@gmail.com
+Description: A Qt-based serial data visualization tool
+ This tool visualizes serial data from an ESP32 or other devices
+ using a graphical user interface based on Qt.

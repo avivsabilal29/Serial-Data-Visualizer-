@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Serial Data Visualizer
+Comment=A tool for visualizing serial data
+Exec=/usr/bin/serial_data_visualizer_ubuntu
+Icon=serial_data_visualizer
+Terminal=false
+Type=Application
+Categories=Utility;

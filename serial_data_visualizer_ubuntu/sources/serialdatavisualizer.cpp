@@ -68,7 +68,6 @@ void SerialDataVisualizer::on_portDropdown_activated(int index)
         selectedPort = "/dev/" + selectedPort;
     }
     selectPortCom = selectedPort;
-    qDebug() << "Serial port selected:" << selectPortCom;
 
 }
 
@@ -92,15 +91,12 @@ void SerialDataVisualizer::on_connectButton_clicked(bool checked)
     serialPort->setDataBits(QSerialPort::Data8);
     serialPort->setStopBits(QSerialPort::OneStop);
     serialPort->setFlowControl(QSerialPort::NoFlowControl);
-    qDebug() << "Serial port pressed.";
 
     if (serialPort->open(QIODevice::ReadWrite)) {
         updateConnectionStatus(!checked);
         serialWorker->setSerialPort(serialPort);
-        qDebug() << "Serial port Open.";
     } else {
         updateConnectionStatus(checked);
-        qDebug() << "Serial port Closed.";
     }
 }
 

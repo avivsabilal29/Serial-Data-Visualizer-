@@ -1,0 +1,4 @@
+rm -f /etc/udev/rules.d/99-serial_permissions.rules
+
+udevadm control --reload-rules
+udevadm trigger
