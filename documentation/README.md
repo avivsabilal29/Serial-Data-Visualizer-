@@ -1,50 +1,82 @@
 # Documentation
 
-This folder contains the guidelines for using the Serial Data Visualizer application. Below is a step-by-step guide to help you fully utilize the application's features.
+This folder contains user guidelines for the Serial Data Visualizer application. Below is a step-by-step guide to help you fully utilize the application's features.
+
+---
 
 ## How to Use the Application
 
 ### 1. Run the Application
 You can run the application using one of the following methods:
 - Open the project in **Qt Creator**, build the application, and click **Run**.
-- Use the pre-built application by running the installer from the **installer** folder or the extracted executable from the `serial_data` folder.
-- The application showing like this image
-![Main Window Application](images/serial_data_visualizer_main.png "Main application window")
+- Use the pre-built application by:
+  - Running the installer from the **installer** folder.
+  - Executing the extracted binary from `serial_data_visualizer_windows` (Windows) or `serial_data_visualizer_ubuntu` (Linux).
+
+#### Main Application Window Examples
+- **Windows:**
+  ![Main Window Application](images/serial_data_visualizer_main.png "Main application window")
+- **Linux:**
+  ![Main Window Ubuntu Application](images/ubuntu_main_window.png "Main application window on Linux")
+
+---
 
 ### 2. Connect the Device
-- Connect your ESP32 device to your computer using a USB cable.
-- Ensure the device is properly powered and recognized by your operating system.
+1. Connect your ESP32 device to your computer using a USB cable.
+2. Ensure the device is properly powered and recognized by your operating system.
 
-### 3. Configure the Connection
-- Open the application.
-- Select the appropriate **serial port** from the dropdown menu.
-- Choose the correct **baudrate** that matches your ESP32 configuration.
-- The serial port and baudrate showing with this image in red squreline
-![Serial and Baudrate](images/serial_baudrate.png "Main application window")
+---
 
-### 4. Establish the Connection
-- Click the **Connect** button to establish a connection between the application and the device.
-- Once connected, the application will update the status to "Connected".
-![Main Window Connected](images/connected.png "Main application connected")
+### 3. Configure and Establish the Connection
+1. Open the application.
+2. Select the appropriate **serial port** and **baudrate** from the dropdown menus.
+3. Click **Connect** to establish a connection between the application and the device.
+4. Once connected, the status will update to **Connected**.
 
+#### Examples:
+- **Windows:**
+  ![Connected Status Windows](images/connected.png "Connected status on Windows")
+- **Linux:**
+  ![Connected Status Ubuntu](images/connected_ubuntu_square.png "Connected status on Linux")
 
-### 5. Start Data Streaming
-- Click the **Start** button to begin receiving and visualizing data from the ESP32.
-- Data will be displayed on the chart in real-time, and raw data will be queued for viewing.
-![Data Window Visualizer](images/data_visualizer.png "Data application visualizer")
+> ⚠️ **Note:** Ensure you select the correct port and baudrate before connecting. An empty selection will result in a connection failure.
 
+---
 
-### 6. View Raw Data
-- Click **View Raw Data** to open a window displaying the incoming raw data.
-- This window will show timestamps and data values, allowing you to analyze the information directly.
-![Raw Data Window Visualizer](images/raw_data.png "Raw data application visualizer")
+### 4. Start Data Streaming
+- Click the **Start** button to begin receiving and visualizing data.
+- The application will display real-time data on a chart, with raw data queued for analysis.
 
-### 7. Stop Data Streaming
-- Click the **Stop** button to stop the data streaming process.
+#### Examples:
+- **Windows:**
+  ![Data Visualization Windows](images/data_visualizer.png "Data visualization on Windows")
+- **Linux:**
+  ![Data Visualization Ubuntu](images/data_viewer_ubuntu.png "Data visualization on Linux")
 
-### 8. Clear the Display
+---
+
+### 5. View Raw Data
+- Click **View Raw Data** to open a window displaying incoming raw data, including timestamps and values.
+- This feature allows you to analyze raw information directly.
+
+#### Examples:
+- **Windows:**
+  ![Raw Data Windows](images/raw_data.png "Raw data window on Windows")
+- **Linux:**
+  ![Raw Data Ubuntu](images/raw_data_ubuntu.png "Raw data window on Linux")
+
+---
+
+### 6. Stop Data Streaming
+- Click the **Stop** button to pause or stop the data streaming process.
+
+---
+
+### 7. Clear the Display
 - Use the **Clear** button to reset and clear the data displayed on the chart and raw data queue.
+
+---
 
 ## Additional Notes
 - Ensure that your ESP32 device is flashed with the correct firmware provided in the **serial_port_device/esp32_serial_data_simulation** folder.
-- Refer to the design reflection document in this folder for insights on design decisions, challenges faced, and lessons learned.
+- For further insights into design decisions, challenges faced, and lessons learned, refer to the **design reflection** document in this folder.

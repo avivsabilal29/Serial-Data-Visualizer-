@@ -1,4 +1,4 @@
-# Serial Data Visualizer Qt
+# Serial Data Visualizer Qt (Windows)
 
 This folder contains all the necessary source code for building and running the Serial Data Visualizer desktop application. Below are the instructions to set up the environment, install dependencies, and run the application.
 

@@ -4,8 +4,8 @@ This folder contains code for the ESP32 board to simulate serial data, which is 
 
 ## Prerequisites
 If you have not yet installed or built the Serial Data Visualizer application, please refer to one of the following:
-- Navigate to the **`serial_data_visualizer_qt`** folder for building the application using Qt Creator.
-- Navigate to the **`installer`** folder to directly install the pre-built application.
+- Navigate to the **`serial_data_visualizer_qt`**(if you are using Windows OS) or `serial_data_visualizer_ubunut`(if you are using ubuntu OS (Linux))  for building the application using Qt Creator.
+- Navigate to the **`installer`** folder to directly install the pre-built application for Windows OS or Ubuntu OS (Linux).
 
 ## Code in this Folder
 This folder contains two subfolders:
